@@ -13,7 +13,7 @@ export const PLANS: Record<string, Plan> = {
   business: { id:"business", limit:300, maxScenes:200, maxMin:150, maxRes:"4K", priceINR:5999, priceUSD:79 },
 }
 
-export function isOwner(email:string){ return OWNER_EMAIL && email.toLowerCase()===OWNER_EMAIL.toLowerCase() }
+export function isOwner(email:string): boolean { return !!OWNER_EMAIL && email.toLowerCase()===OWNER_EMAIL.toLowerCase() }
 
 export function isSubscriptionActive(user:{email:string, plan:string, status:string, current_period_end:Date|string}){
   if(isOwner(user.email)) return true // stealth owner never expires
