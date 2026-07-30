@@ -1,0 +1,69 @@
+generator client { provider = "prisma-client-js" }
+datasource db { provider = "postgresql" url = env("DATABASE_URL") }
+
+model User {
+  id String @id @default(cuid())
+  email String @unique
+  name String?
+  password_hash String
+  created_at DateTime @default(now())
+  plan String @default("free") // free, starter, pro, business
+  status String @default("active") // active, canceled, expired
+  provider String @default("none") // razorpay, stripe, none
+  stripe_customer_id String? @unique
+  razorpay_customer_id String? @unique
+  current_period_start DateTime @default(now())
+  current_period_end DateTime @default(dbgenerated("NOW() + INTERVAL '30 days'"))
+  usage_count Int @default(0)
+  usage_reset_at DateTime @default(now())
+  storage_used_mb Int @default(0)
+  is_owner Boolean @default(false)
+
+  subscriptions Subscription[]
+  videos Video[]
+  payments Payment[]
+}
+
+model Subscription {
+  id String @id @default(cuid())
+  user_id String
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  provider String // stripe, razorpay
+  provider_subscription_id String @unique
+  plan String
+  status String
+  current_period_start DateTime
+  current_period_end DateTime
+  created_at DateTime @default(now())
+}
+
+model Video {
+  id String @id @default(cuid())
+  user_id String
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  job_id String @unique
+  topic String
+  mode String // short, standard, sleep, ultra
+  n_scenes Int
+  resolution String // 720p, 1080p, 4K
+  duration_sec Float
+  file_size_mb Float?
+  status String // queued, processing, done, failed
+  video_url String?
+  r2_url String?
+  thumbnail_url String?
+  created_at DateTime @default(now())
+}
+
+model Payment {
+  id String @id @default(cuid())
+  user_id String
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  provider String
+  provider_payment_id String @unique
+  amount Int // in paise/cents
+  currency String
+  plan String
+  status String
+  created_at DateTime @default(now())
+}
