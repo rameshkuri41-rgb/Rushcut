@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+groq
+requests
+edge-tts
+python-multipart
+pexels
